@@ -43,21 +43,14 @@
       cursor: pointer;
       transition: opacity .15s ease, transform .12s ease;
     }
-    button:disabled {
-      cursor: not-allowed;
-      opacity: 0.75;
-    }
-    button:active {
-      transform: scale(0.99);
-    }
+    button:disabled { cursor: not-allowed; opacity: 0.75; }
+    button:active { transform: scale(0.99); }
 
-    /* ✅ message: 默认隐藏 + 成功/失败颜色 */
     .msg{
       margin-top: 14px;
       font-size: 14px;
       line-height: 1.35;
       min-height: 20px;
-
       opacity: 0;
       transform: translateY(4px);
       transition: all .2s ease;
@@ -77,52 +70,47 @@
 </div>
 
 <script>
-  const supabase = window.supabase.createClient(
-    "https://aanmhvgfpdcysnzbwqfr.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhbm1odmdmcGRjeXNuemJ3cWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzExNzI1MTgsImV4cCI6MjA4Njc0ODUxOH0.wE4BHgvl3QDv-kYPcEiL1vMNKV8HqcCgRBuj_ZgmZ5I"
-  );
+  // ✅ 防止 “supabase 已声明” 报错：只初始化一次，挂到 window 上
+  if (!window.__sb) {
+    window.__sb = window.supabase.createClient(
+      "https://aanmhvgfpdcysnzbwqfr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhbm1odmdmcGRjeXNuemJ3cWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzExNzI1MTgsImV4cCI6MjA4Njc0ODUxOH0.wE4BHgvl3QDv-kYPcEiL1vMNKV8HqcCgRBuj_ZgmZ5I"
+    );
+  }
+  const sb = window.__sb;
 
   const msgEl = document.getElementById("msg");
   const btn = document.querySelector("button");
 
   function showMsg(text, type = "") {
-    msgEl.className = "msg show " + (type === "ok" ? "ok" : type === "err" ? "err" : "");
-    msgEl.innerText = text || "";
     if (!text) {
-      msgEl.className = "msg"; // 没内容就隐藏
+      msgEl.className = "msg";
+      msgEl.innerText = "";
+      return;
     }
+    msgEl.className = "msg show " + (type === "ok" ? "ok" : type === "err" ? "err" : "");
+    msgEl.innerText = text;
   }
 
-  // ✅ 页面加载：读取 hash token
   async function initFromHash() {
     try {
-      const hash = window.location.hash.startsWith("#")
-        ? window.location.hash.substring(1)
-        : "";
-
+      const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : "";
       const params = new URLSearchParams(hash);
+
       const access_token = params.get("access_token");
       const refresh_token = params.get("refresh_token");
       const type = params.get("type");
 
-      console.log("hash params:", {
-        hasAccess: !!access_token,
-        hasRefresh: !!refresh_token,
-        type
-      });
+      console.log("hash params:", { hasAccess: !!access_token, hasRefresh: !!refresh_token, type });
 
       if (!access_token) {
         showMsg("Missing reset token. Please open the link from the email again.", "err");
         return;
       }
 
-      // ✅ 如果有 refresh_token，就 setSession（最稳）
+      // ✅ 有 refresh_token 才 setSession（最稳）
       if (refresh_token) {
-        const { error } = await supabase.auth.setSession({
-          access_token,
-          refresh_token
-        });
-
+        const { error } = await sb.auth.setSession({ access_token, refresh_token });
         if (error) {
           console.error("setSession error:", error);
           showMsg("Token error: " + error.message, "err");
@@ -130,7 +118,6 @@
         }
       }
 
-      // 不管有没有 refresh_token，都给用户明确提示
       showMsg("Ready. Enter a new password and click Update.", "");
     } catch (e) {
       console.error(e);
@@ -154,19 +141,16 @@
     showMsg("Updating password…", "");
 
     try {
-      // ✅ 打印当前 session，便于排错
-      const { data: sessionData } = await supabase.auth.getSession();
+      const { data: sessionData } = await sb.auth.getSession();
       console.log("current session:", sessionData?.session);
 
-      const { error } = await supabase.auth.updateUser({ password });
+      const { error } = await sb.auth.updateUser({ password });
 
       if (error) {
         console.error("updateUser error:", error);
         showMsg("Update failed: " + error.message, "err");
       } else {
         showMsg("✅ Password updated successfully. You can now close this page.", "ok");
-
-        // 可选：成功后把输入框清空
         document.getElementById("password").value = "";
       }
     } catch (e) {
