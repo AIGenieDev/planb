@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Plan B</title>
+  <title>Plan B Activated</title>
+
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -15,205 +16,90 @@
       margin: 0;
       color: #222;
     }
+
     .card {
       background: rgba(255,255,255,0.7);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 30px;
-      border-radius: 18px;
+      padding: 36px;
+      border-radius: 20px;
       width: 360px;
       max-width: calc(100vw - 40px);
       text-align: center;
       box-shadow: 0 10px 40px rgba(0,0,0,0.10);
       border: 1px solid rgba(255,255,255,0.55);
     }
-    .brand {
-      font-weight: 800;
+
+    .title {
       font-size: 22px;
-      letter-spacing: 0.3px;
+      font-weight: 800;
       margin-bottom: 6px;
     }
-    .tagline {
+
+    .subtitle {
       font-size: 13px;
       color: rgba(0,0,0,0.55);
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
-    .status {
+
+    .success {
       font-size: 18px;
       font-weight: 700;
-      margin: 10px 0 6px;
+      margin-bottom: 10px;
     }
+
     .desc {
-      font-size: 13px;
-      line-height: 1.45;
+      font-size: 14px;
       color: rgba(0,0,0,0.65);
-      margin: 0 0 18px;
+      line-height: 1.5;
     }
-    .pill {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-top: 6px;
-      background: rgba(122,60,255,0.10);
-      color: #5c2cff;
-      border: 1px solid rgba(122,60,255,0.18);
-    }
-    .error {
-      background: rgba(255, 69, 58, 0.10);
-      color: #b42318;
-      border: 1px solid rgba(255, 69, 58, 0.18);
-    }
-    .btnRow {
-      display: flex;
-      gap: 12px;
-      margin-top: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
+
     .btn {
+      margin-top: 22px;
       border: none;
-      padding: 12px 16px;
+      padding: 12px 20px;
       border-radius: 14px;
       cursor: pointer;
       font-weight: 700;
       font-size: 14px;
-      min-width: 140px;
-      transition: transform .08s ease, opacity .08s ease;
-    }
-    .btn:active { transform: scale(0.98); }
-    .primary {
       background: linear-gradient(135deg,#ffb24a,#ff7d4a);
       color: white;
       box-shadow: 0 10px 22px rgba(255,125,74,0.25);
+      transition: transform .08s ease;
     }
-    .ghost {
-      background: rgba(255,255,255,0.6);
-      color: rgba(0,0,0,0.75);
-      border: 1px solid rgba(0,0,0,0.08);
+
+    .btn:active {
+      transform: scale(0.98);
     }
-    .smallLink {
-      margin-top: 14px;
+
+    .footer {
+      margin-top: 20px;
       font-size: 12px;
-      color: rgba(0,0,0,0.55);
-    }
-    a { color: #5c2cff; text-decoration: none; font-weight: 700; }
-    a:hover { text-decoration: underline; }
-    .hint {
-      margin-top: 12px;
-      font-size: 12px;
-      color: rgba(0,0,0,0.55);
-    }
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 11px;
-      background: rgba(0,0,0,0.05);
-      padding: 2px 6px;
-      border-radius: 8px;
+      color: rgba(0,0,0,0.5);
     }
   </style>
 </head>
 <body>
+
   <div class="card">
-    <div class="brand">Plan B</div>
-    <div class="tagline">Think clearly. Decide confidently.</div>
+    <div class="title">Plan B</div>
+    <div class="subtitle">Think clearly. Decide confidently.</div>
 
-    <div id="pill" class="pill">Opening link…</div>
-    <div id="status" class="status">Loading…</div>
-    <p id="desc" class="desc">Please wait.</p>
+    <div class="success">✅ Account Activated</div>
 
-    <div class="btnRow">
-      <button id="btnPrimary" class="btn primary">Back to app</button>
-      <button id="btnSecondary" class="btn ghost">Go to reset</button>
+    <div class="desc">
+      Your Plan B account has been successfully verified.<br/>
+      Please close this page and return to the app to sign in.
     </div>
 
-    <div class="smallLink">
-      If you’re not sure what to do: return to the app and <b>Sign in</b>.
-    </div>
+    <button class="btn" onclick="alert('Please return to the Plan B app and sign in.')">
+      Back to App
+    </button>
 
-    <div class="hint" id="debug" style="display:none;"></div>
+    <div class="footer">
+      You can safely close this page.
+    </div>
   </div>
 
-  <script>
-    // Parse URL hash (#a=b&c=d)
-    function parseHashParams() {
-      const hash = window.location.hash || "";
-      const raw = hash.startsWith("#") ? hash.substring(1) : hash;
-      const params = {};
-      raw.split("&").forEach(kv => {
-        const [k, v] = kv.split("=");
-        if (!k) return;
-        params[decodeURIComponent(k)] = decodeURIComponent(v || "");
-      });
-      return params;
-    }
-
-    const pill = document.getElementById("pill");
-    const status = document.getElementById("status");
-    const desc = document.getElementById("desc");
-    const debug = document.getElementById("debug");
-
-    const btnPrimary = document.getElementById("btnPrimary");
-    const btnSecondary = document.getElementById("btnSecondary");
-
-    // Your reset page
-    const resetUrl = "https://aigeniedev.github.io/planb/reset.html";
-
-    // Primary button: for now we can't deep link reliably without Android intent filter.
-    // So we just instruct user to return to app.
-    btnPrimary.onclick = () => {
-      // If you later add deep link, replace with: window.location.href = "planb://auth";
-      alert("Please return to the Plan B app and sign in.");
-    };
-
-    btnSecondary.onclick = () => {
-      window.location.href = resetUrl;
-    };
-
-    const p = parseHashParams();
-    // debug.style.display = "block";
-    // debug.textContent = "hash: " + JSON.stringify(p, null, 2);
-
-    const type = (p.type || "").toLowerCase();
-    const err = p.error || p.error_description || "";
-    const accessToken = p.access_token || "";
-
-    if (err) {
-      pill.classList.add("error");
-      pill.textContent = "Link error";
-      status.textContent = "This link couldn’t be completed";
-      desc.textContent = "Please try again from the latest email, or request a new link inside the app.";
-      return;
-    }
-
-    // Supabase types:
-    // - signup / email_change: email verified
-    // - recovery: password reset flow
-    if (type === "recovery") {
-      pill.textContent = "Password reset";
-      status.textContent = "Continue to reset your password";
-      desc.textContent = "We’ll take you to the password reset page now.";
-
-      // Auto-forward to reset.html with the same hash so reset page can read tokens
-      setTimeout(() => {
-        window.location.href = resetUrl + window.location.hash;
-      }, 650);
-      return;
-    }
-
-    if (type === "signup" || type === "email_change") {
-      pill.textContent = "Email verified";
-      status.textContent = "You’re all set";
-      desc.textContent = "Your email is confirmed. Return to the Plan B app and sign in to continue.";
-      btnSecondary.textContent = "Open reset page";
-      return;
-    }
-
-    // Default / unknown
-    pill.textContent = "Plan B";
-    status.textContent = "Return to the app";
-    desc.textContent = "If you came from an email link, you can now return to Plan B and sign in.";
-  </script>
 </body>
 </html>
